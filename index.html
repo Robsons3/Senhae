@@ -12,24 +12,16 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: sans-serif;
-      flex-direction: column;
     }
     canvas {
       background-color: #fff;
       border: 1.5px solid #ccc;
       border-radius: 14px;
       box-shadow: 0 0 12px rgba(0,0,0,0.1);
-      touch-action: none;
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
     }
   </style>
 </head>
 <body>
-  <h1>Desenhe seu padrão</h1>
   <canvas id="canvas" width="320" height="320"></canvas>
 
   <script type="module">
@@ -37,12 +29,13 @@
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCvx4_m1axcdhmn8pqtHVXopQavatcX1NM",
-      authDomain: "senha-padrao.firebaseapp.com",
-      projectId: "senha-padrao",
-      storageBucket: "senha-padrao.appspot.com",
-      messagingSenderId: "947119781442",
-      appId: "1:947119781442:web:a76c46c9c3894fa96e5fdb"
+      apiKey: "AIzaSyCUhYt0az_F_ATHcOdSoLi-Ks520Zxjzbs",
+      authDomain: "senha-padroes.firebaseapp.com",
+      projectId: "senha-padroes",
+      storageBucket: "senha-padroes.firebasestorage.app",
+      messagingSenderId: "387208237733",
+      appId: "1:387208237733:web:22018c4eb89a872367334c",
+      measurementId: "G-L57HTKV23H"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -56,11 +49,11 @@
     const margin = 50;
 
     const points = [];
-    for(let row=0; row<gridSize; row++) {
-      for(let col=0; col<gridSize; col++) {
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
         points.push({
-          x: margin + col * ((canvas.width - 2*margin) / (gridSize -1)),
-          y: margin + row * ((canvas.height - 2*margin) / (gridSize -1)),
+          x: margin + col * ((canvas.width - 2 * margin) / (gridSize - 1)),
+          y: margin + row * ((canvas.height - 2 * margin) / (gridSize - 1)),
           index: row * gridSize + col + 1
         });
       }
@@ -71,17 +64,11 @@
 
     function getPos(e) {
       const rect = canvas.getBoundingClientRect();
-      if (e.touches && e.touches.length > 0) {
-        return {
-          x: e.touches[0].clientX - rect.left,
-          y: e.touches[0].clientY - rect.top
-        };
-      } else {
-        return {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        };
-      }
+      const touch = e.touches?.[0] || e;
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      };
     }
 
     function distance(p1, p2) {
@@ -96,7 +83,7 @@
         ctx.lineWidth = 5;
         ctx.beginPath();
         ctx.moveTo(selectedPoints[0].x, selectedPoints[0].y);
-        for (let i =1; i < selectedPoints.length; i++) {
+        for (let i = 1; i < selectedPoints.length; i++) {
           ctx.lineTo(selectedPoints[i].x, selectedPoints[i].y);
         }
         ctx.stroke();
@@ -110,7 +97,8 @@
         ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
-        if(selectedPoints.includes(p)) {
+
+        if (selectedPoints.includes(p)) {
           ctx.beginPath();
           ctx.fillStyle = "#1e3a8a";
           ctx.arc(p.x, p.y, radius / 2, 0, Math.PI * 2);
@@ -149,18 +137,18 @@
       drawGrid();
     }
 
-    async function endDraw(e) {
+    async function endDraw() {
       if (!drawing) return;
       drawing = false;
       drawGrid();
 
       if (selectedPoints.length > 0) {
         try {
-          await addDoc(collection(db, "padrões"), {
+          await addDoc(collection(db, "padroes"), {
             padrao: selectedPoints.map(p => p.index),
             timestamp: new Date()
           });
-          alert("Senha enviada com sucesso!");
+          alert("Senha enviada!");
         } catch (err) {
           alert("Erro ao enviar: " + err.message);
         }
@@ -172,14 +160,13 @@
       }, 1000);
     }
 
-    canvas.addEventListener("touchstart", startDraw);
-    canvas.addEventListener("touchmove", moveDraw);
-    canvas.addEventListener("touchend", endDraw);
-
     canvas.addEventListener("mousedown", startDraw);
     canvas.addEventListener("mousemove", moveDraw);
     canvas.addEventListener("mouseup", endDraw);
-    canvas.addEventListener("mouseleave", () => { drawing = false; });
+
+    canvas.addEventListener("touchstart", startDraw);
+    canvas.addEventListener("touchmove", moveDraw);
+    canvas.addEventListener("touchend", endDraw);
 
     drawGrid();
   </script>
