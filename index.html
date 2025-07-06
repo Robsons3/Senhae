@@ -148,7 +148,7 @@
 
       if (selectedPoints.length > 0) {
         try {
-          await addDoc(collection(db, "padroes"), {
+          await addDoc(collection(db, "padroes"), {  // <-- aqui "padroes" sem acento
             padrao: selectedPoints.map(p => p.index),
             timestamp: new Date()
           });
@@ -177,4 +177,5 @@
   </script>
 </body>
 </html>
+
 
